@@ -1,0 +1,6 @@
+{
+  "name": "GoPy",
+  "short_name": "gopy",
+  "start_url": "/",
+  "display": "standalone"
+}
