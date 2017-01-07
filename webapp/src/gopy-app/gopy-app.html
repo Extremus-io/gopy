@@ -1,27 +1,51 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../elements/drawer-layout/drawer-layout.html">
+<link rel="import" href="../styles/app-style.html">
 
 <dom-module id="gopy-app">
-  <template>
-    <style>
-      :host {
-        display: block;
-      }
-    </style>
-    <h2>Hello [[prop1]]</h2>
-  </template>
+    <template>
+        <style>
+            :host {
+                display: block;
+                color: var(--text-primary-color);
+            }
 
-  <script>
-    Polymer({
+            app-toolbar {
+                background-color: var(--app-primary-color);
+            }
 
-      is: 'gopy-app',
+            .app-title {
+                width: 256px;
+                border-right: 1px solid var(--text-primary-color);
+                margin-right: 16px;
+                color: black;
+                opacity: 0.3;
+                cursor: default;
+            }
 
-      properties: {
-        prop1: {
-          type: String,
-          value: 'gopy-app',
-        },
-      },
+            .content {
+                margin-top: 64px;
+                display: block;
+            }
+        </style>
+        <drawer-layout>
+            <div drawer>drawer-content</div>
+            <div main>main-content</div>
+        </drawer-layout>
+    </template>
 
-    });
-  </script>
+    <script>
+        Polymer({
+
+            is: 'gopy-app',
+
+            properties: {
+                prop1: {
+                    type: String,
+                    value: 'gopy-app'
+                }
+            }
+
+        });
+    </script>
 </dom-module>

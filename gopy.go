@@ -1,12 +1,19 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+	"os"
+	"path/filepath"
+)
 
 var (
+	gopath = os.Getenv("GOPATH")
+	approot = filepath.Join(gopath, "src/github.com/Extremus-io/gopy/")
 	host = "127.0.0.1:9000"
-	webroot = "webapp/"
+	webroot = filepath.Join(approot, "webapp/")
 )
 
 func main() {
-	http.ListenAndServe(host, http.FileServer(http.Dir(webroot)))
+	http.Handle("/", http.FileServer(http.Dir(webroot)))
+	http.ListenAndServe(host, nil)
 }

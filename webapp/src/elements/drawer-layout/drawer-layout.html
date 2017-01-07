@@ -1,0 +1,75 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../../bower_components/app-layout/app-drawer-layout/app-drawer-layout.html">
+<link rel="import" href="../../../bower_components/app-layout/app-drawer/app-drawer.html">
+<link rel="import" href="../../../bower_components/paper-drawer-panel/paper-drawer-panel.html">
+<link rel="import" href="../../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../../bower_components/paper-header-panel/paper-header-panel.html">
+<link rel="import" href="../../../bower_components/paper-toolbar/paper-toolbar.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header-layout/app-header-layout.html">
+<link rel="import" href="../../../bower_components/app-layout/app-header/app-header.html">
+<link rel="import" href="../../../bower_components/app-layout/app-toolbar/app-toolbar.html">
+
+<dom-module id="drawer-layout">
+    <template>
+        <style>
+            app-toolbar {
+                background-color: var(--app-primary-color);
+            }
+
+            .app-title {
+                width: 256px;
+                border-right: 2px solid black;
+                margin-right: 16px;
+                color: black;
+                opacity: 0.3;
+                cursor: default;
+            }
+
+            .page-title {
+                margin-left: 10px;
+            }
+        </style>
+        <app-header-layout fullbleed>
+            <app-header fixed condenses effects="waterfall">
+                <app-toolbar>
+                    <div class="app-title" hidden$="{{narrow}}">{{appTitle}}</div>
+                    <template is="dom-if" if="{{narrow}}">
+                        <paper-icon-button icon="menu" on-click="toggle"></paper-icon-button>
+                    </template>
+                    <div main-title class="page-title">{{pageTitle}}</div>
+                </app-toolbar>
+            </app-header>
+            <paper-drawer-panel style="position: relative;" narrow="{{narrow}}" id="drawer">
+                <content select="*[drawer]" drawer></content>
+                <content select="*[main]" main></content>
+            </paper-drawer-panel>
+        </app-header-layout>
+    </template>
+
+    <script>
+        Polymer({
+
+            is: 'drawer-layout',
+
+            properties: {
+                narrow: {
+                    type: Boolean,
+                    value: false
+                },
+                appTitle: {
+                    type: String,
+                    value: "App Title"
+                },
+                pageTitle: {
+                    type: String,
+                    value: "Page Title"
+                }
+            },
+            toggle: function () {
+                this.$.drawer.togglePanel();
+            }
+
+        });
+    </script>
+</dom-module>
