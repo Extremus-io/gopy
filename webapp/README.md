@@ -1,4 +1,5 @@
-# GoPy
+# gopy-app
+Interface for GoPy 
 
 ## Setup
 
