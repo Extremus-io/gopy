@@ -1,37 +1,49 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
 <link rel="import" href="../elements/drawer-layout/drawer-layout.html">
+<link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../elements/ws-stream/ws-stream.html">
 <link rel="import" href="../styles/app-style.html">
 
 <dom-module id="gopy-app">
     <template>
-        <style>
+        <style include="iron-flex iron-flex-alignment">
             :host {
                 display: block;
                 color: var(--text-primary-color);
             }
 
-            app-toolbar {
-                background-color: var(--app-primary-color);
-            }
-
-            .app-title {
-                width: 256px;
-                border-right: 1px solid var(--text-primary-color);
-                margin-right: 16px;
-                color: black;
-                opacity: 0.3;
-                cursor: default;
-            }
-
             .content {
-                margin-top: 64px;
-                display: block;
+                position: relative;
+                height: 100%;
+                width: 100%;
+                background: var(--app-primary-background-color);
+            }
+
+            paper-button {
+                color: var(--app-primary-dark-color);
+            }
+
+            pre {
+                margin: 0;
             }
         </style>
-        <drawer-layout>
-            <div drawer>drawer-content</div>
-            <div main>main-content</div>
+        <drawer-layout app-title="Gopy Console" page-title="Home">
+            <div drawer>
+                <div class="layout vertical">
+                    <paper-button>
+                        > func.py
+                    </paper-button>
+                </div>
+
+            </div>
+            <div main>
+                <div class="content">
+                    <pre>{{kkk}}</pre>
+                </div>
+            </div>
         </drawer-layout>
+        <ws-stream auto url="ws://localhost:9000/api/ws/" stream="{{kkk}}"></ws-stream>
     </template>
 
     <script>

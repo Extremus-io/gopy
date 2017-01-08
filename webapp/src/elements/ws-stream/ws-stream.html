@@ -1,0 +1,71 @@
+<link rel="import" href="../../../bower_components/polymer/polymer.html">
+
+<script>
+    Polymer({
+        is: "ws-stream",
+        properties: {
+            url: {
+                type: String
+            },
+            stream: {
+                type: String,
+                value: ""
+            },
+            connected: {
+                type: Boolean,
+                value: false
+            },
+            buff: {
+                type: String,
+                value: ""
+            },
+            webSocket: {
+                type: WebSocket
+            },
+            auto: {
+                type: Boolean,
+                value: false
+            }
+        },
+        observers: [
+            '_streamChange(buff)'
+        ],
+        ready: function () {
+            if (this.auto) {
+                this.connect();
+            }
+        },
+        connect: function () {
+
+            this.webSocket = new WebSocket(this.url);
+            this.webSocket.onmessage = this._onmessage(this);
+            this.webSocket.onopen = this._onopen(this);
+            this.webSocket.onerror = this._onerror;
+            this.webSocket.onclose = this._onclose;
+        },
+        _streamChange: function (buff) {
+            this.stream += buff;
+            this.buff = "";
+        },
+        _onopen: function (obj) {
+            return function () {
+                obj.connected = true;
+            }
+        },
+        _onerror: function (e) {
+            console.log(e);
+        },
+        _onmessage: function (obj) {
+            return function (msg) {
+                obj.buff = obj.buff || "";
+                obj.buff = obj.buff + msg.data;
+                obj.notifyPath("stream");
+            };
+        },
+        _onclose: function (obj) {
+            return function (e) {
+                obj.connected = false;
+            }
+        }
+    });
+</script>
