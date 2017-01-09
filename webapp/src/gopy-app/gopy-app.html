@@ -1,16 +1,24 @@
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout-classes.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/app-layout/app-grid/app-grid-style.html">
 <link rel="import" href="../elements/drawer-layout/drawer-layout.html">
 <link rel="import" href="../../bower_components/paper-button/paper-button.html">
+<link rel="import" href="../../bower_components/paper-material/paper-material.html">
 <link rel="import" href="../elements/ws-stream/ws-stream.html">
 <link rel="import" href="../styles/app-style.html">
 
 <dom-module id="gopy-app">
     <template>
-        <style include="iron-flex iron-flex-alignment">
+        <style include="iron-flex iron-flex-alignment app-grid-style">
             :host {
                 display: block;
                 color: var(--text-primary-color);
+                --app-grid-columns: 3;
+                --app-grid-expandible-item-columns: 3;
+                --app-grid-item-height: 20vw;
+                --app-grid-gutter: 10px;
+
             }
 
             .content {
@@ -18,32 +26,63 @@
                 height: 100%;
                 width: 100%;
                 background: var(--app-primary-background-color);
+                overflow-y: auto;
             }
 
             paper-button {
-                color: var(--app-primary-dark-color);
+                color: var(--app-tint-color);
+            }
+
+            paper-material {
+                background: white;
             }
 
             pre {
+                color: var(--text-primary-color-light);
+                background: #ededed;
+                padding: 10px;
                 margin: 0;
+                box-shadow: 0 1px 4px #9c9c9c inset;
+            }
+
+            .pre-container {
+                margin: 0 10px 10px;
+                padding: 0;
+                overflow-y: auto;
             }
         </style>
         <drawer-layout app-title="Gopy Console" page-title="Home">
             <div drawer>
                 <div class="layout vertical">
                     <paper-button>
-                        > func.py
+                        <iron-icon icon="chevron-right"></iron-icon>
+                        <span>func.py</span>
                     </paper-button>
                 </div>
 
             </div>
+
             <div main>
-                <div class="content">
-                    <pre>{{kkk}}</pre>
+                <div class="app-grid content" has-aspect-ratio>
+                    <template is="dom-repeat" items="[1,2,3,4,5,6,7,8,9,0]">
+                        <paper-material>
+                            <div class="layout vertical">
+                                <div class="layout horizontal">
+                                    <div class="flex">exec</div>
+                                    <paper-button>run</paper-button>
+                                </div>
+                                <template is="dom-bind">
+                                    <ws-stream auto url="ws://localhost:9000/api/ws/" stream="{{streams}}"></ws-stream>
+                                    <div class="flex pre-container layout vertical">
+                                        <pre class="flex">{{streams}}</pre>
+                                    </div>
+                                </template>
+                            </div>
+                        </paper-material>
+                    </template>
                 </div>
             </div>
         </drawer-layout>
-        <ws-stream auto url="ws://localhost:9000/api/ws/" stream="{{kkk}}"></ws-stream>
     </template>
 
     <script>

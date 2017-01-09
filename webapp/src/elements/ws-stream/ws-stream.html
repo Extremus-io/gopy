@@ -41,9 +41,10 @@
             this.webSocket.onmessage = this._onmessage(this);
             this.webSocket.onopen = this._onopen(this);
             this.webSocket.onerror = this._onerror;
-            this.webSocket.onclose = this._onclose;
+            this.webSocket.onclose = this._onclose(this);
         },
         _streamChange: function (buff) {
+            this.stream = this.stream || "";
             this.stream += buff;
             this.buff = "";
         },

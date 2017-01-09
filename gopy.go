@@ -1,40 +1,37 @@
 package main
 
 import (
-	"net/http"
-	"os"
-	"path/filepath"
 	"os/exec"
+	"encoding/json"
+	"sync"
+	"os"
 	"io"
-	"golang.org/x/net/websocket"
+	"fmt"
 )
 
-var (
-	gopath = os.Getenv("GOPATH")
-	approot = filepath.Join(gopath, "src/github.com/Extremus-io/gopy/")
-	host = "127.0.0.1:9000"
-	webroot = filepath.Join(approot, "webapp/")
-)
+type Cmd struct {
+	Args []string `json:"args"`
+}
 
 func main() {
-	http.Handle("/api/ws/", websocket.Handler(apiwsCall))
-	http.HandleFunc("/api/", apiCall)
-	http.Handle("/", http.FileServer(http.Dir(webroot)))
-	http.ListenAndServe(host, nil)
-}
+	c := exec.Command("python", "-u", "gopy.py")
+	i, _ := c.StdoutPipe()
 
-func apiCall(w http.ResponseWriter, r *http.Request) {
-	cmd := exec.Command("python", "-u", "func.py")
-	w.WriteHeader(http.StatusOK)
-	stdout, _ := cmd.StdoutPipe()
-	cmd.Start()
-	io.Copy(w, stdout)
-}
-
-func apiwsCall(w *websocket.Conn) {
-	cmd := exec.Command("python", "-u", "func.py")
-	stdout, _ := cmd.StdoutPipe()
-	cmd.Start()
-	io.Copy(w, stdout)
-	w.Close()
+	in := json.NewDecoder(i)
+	c.Start()
+	var p Cmd
+	w := sync.WaitGroup{}
+	for err := in.Decode(&p); err == nil; err = in.Decode(&p) {
+		fmt.Print(p)
+		w.Add(1)
+		go func() {
+			cm := exec.Command("python", p.Args...)
+			k, _ := cm.StdoutPipe()
+			cm.Start()
+			io.Copy(os.Stdout, k)
+			w.Done()
+		}()
+	}
+	c.Wait()
+	w.Wait()
 }
