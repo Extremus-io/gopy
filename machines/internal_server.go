@@ -38,13 +38,8 @@ func handleWebsocket(ws *websocket.Conn) {
 		return
 	}
 
-	err, ok := <-cl
-	if ok {
-		encoder.Encode(map[string]string{
-
-		})
-	}
-
+	err, _ = <-cl
+	close(cl)
 }
 
 func wsHandshake(ws *websocket.Conn, decoder json.Decoder) (*MachineConfig, error) {
