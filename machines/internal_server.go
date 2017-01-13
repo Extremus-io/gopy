@@ -7,6 +7,9 @@ import (
 	"time"
 	"errors"
 	"fmt"
+	"github.com/Extremus-io/gopy/log"
+	"bytes"
+	"io"
 )
 
 const _MACHINE_INT_HANDSHAKE_TIMEOUT = time.Second * 10
@@ -16,6 +19,8 @@ func SetupServer() {
 }
 
 func handleWebsocket(ws *websocket.Conn) {
+	log.Debug("slave connect requested")
+
 	// for writing direct objects into ws use these
 	decoder := json.NewDecoder(ws)
 	encoder := json.NewEncoder(ws)
@@ -25,24 +30,27 @@ func handleWebsocket(ws *websocket.Conn) {
 
 	// if raise error if handshake was unsuccessful
 	if err != nil {
-		encoder.Encode(map[string]string{"handshake":false, "error":err})
+		log.Errorf("slave connect failed error:`%v`", err)
+		encoder.Encode(map[string]interface{}{"handshake":false, "error":err.Error()})
+
 		return
 	}
 
 	// register machine and send id to complete handshake
-	cl := make(chan error)
-	m := NewMachineFromWs(mc, ws, cl)
+	buf := bytes.NewBuffer(nil)
+	m := NewMachineFromWs(mc, ws, buf)
 	defer DeleteMachine(m.Id)
 
-	if err != nil {
-		return
-	}
-
-	err, _ = <-cl
-	close(cl)
+	// finish the handshake step
+	json.NewEncoder(ws).Encode(map[string]interface{}{
+		"handshake":true,
+		"id":m.Id,
+	})
+	log.Infof("slave connect success hostname:%s Id:%d", mc.Hostname, m.Id)
+	io.Copy(buf, ws)
 }
 
-func wsHandshake(ws *websocket.Conn, decoder json.Decoder) (*MachineConfig, error) {
+func wsHandshake(ws *websocket.Conn, decoder *json.Decoder) (MachineConfig, error) {
 	c := make(chan interface{})
 	var err error
 	mc := MachineConfig{}
@@ -52,11 +60,11 @@ func wsHandshake(ws *websocket.Conn, decoder json.Decoder) (*MachineConfig, erro
 	}()
 
 	select {
-	case <-c:
+	case _, _ = <-c:
 		break
 	case <-time.After(_MACHINE_INT_HANDSHAKE_TIMEOUT):
 		err = errors.New(fmt.Sprintf("error Hand shake timed out. timeout value `%v`", _MACHINE_INT_HANDSHAKE_TIMEOUT))
 	}
-
+	mc.ConnectAt = time.Now()
 	return mc, err
 }

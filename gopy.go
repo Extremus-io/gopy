@@ -1,6 +1,5 @@
 package gopy
 
-import ()
 
 type Cmd struct {
 	Args    []string `json:"args"`

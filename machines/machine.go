@@ -5,30 +5,31 @@ import (
 	"math/rand"
 	"encoding/json"
 	"golang.org/x/net/websocket"
+	"time"
 )
 
 const MAX_RETRIES = 20
 
 // fill these parameters and use this to make a new config
 type MachineConfig struct {
-	Hostname string               `json:"hostname"`
-	PublicIp string               `json:"public_ip"`
-	Threads  int                  `json:"threads"`
-	Extra    json.RawMessage      `json:"extra"`
+	Hostname  string               `json:"hostname"`
+	Threads   int                  `json:"threads"`
+	Extra     json.RawMessage      `json:"extra"`
+	ConnectAt time.Time            `json:"connected_at"`
 }
 
 // functional reader writer interface for communicating with machine
 type Machine struct {
 	Id            int                      `json:"id"`
 	Conf          MachineConfig            `json:"conf"`
-	reader        io.ReadCloser
-	writer        io.WriteCloser
-	closeNotifier chan error
+	ws            *websocket.Conn
+	reader        io.Reader
+	writer        io.Writer
 }
 
 
 // Generates new Machine variable and stores it into local map
-func NewMachineFromWs(c MachineConfig, ws *websocket.Conn, cl chan error) *Machine {
+func NewMachineFromWs(c MachineConfig, ws *websocket.Conn,reader io.Reader) *Machine {
 	// lock the data file for safely updating map
 	lock.Lock()
 	defer lock.Unlock()
@@ -52,18 +53,11 @@ func NewMachineFromWs(c MachineConfig, ws *websocket.Conn, cl chan error) *Machi
 	m := &Machine{
 		Id:id,
 		Conf:c,
-		reader:ws,
+		ws:ws,
+		reader:reader,
 		writer:ws,
-		closeNotifier:cl,
 	}
 	data[id] = m
-
-	// finish the handshake step
-	json.NewEncoder(ws).Encode(map[string]string{
-		"handshake":true,
-		"id":id,
-	})
-
 
 	// returning a machine
 	return m
@@ -84,8 +78,4 @@ func (m *Machine) Read(p []byte) (int, error) {
 
 func (m *Machine) Write(p []byte) (int, error) {
 	return m.writer.Write(p)
-}
-
-func (m *Machine) disconnect(err error) {
-	m.closeNotifier <- err
 }

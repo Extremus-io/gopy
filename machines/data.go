@@ -3,7 +3,7 @@ package machines
 import "sync"
 
 var lock = sync.RWMutex{}
-var data map[int]*Machine
+var data = make(map[int]*Machine)
 
 func GetMachine(id int) (*Machine, bool) {
 	lock.RLock()
