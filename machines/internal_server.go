@@ -47,6 +47,8 @@ func handleWebsocket(ws *websocket.Conn) {
 		"id":m.Id,
 	})
 	log.Infof("slave connect success hostname:%s Id:%d", mc.Hostname, m.Id)
+
+	// copy data from ws to buffer until ws is closed or encountered error
 	io.Copy(buf, ws)
 }
 

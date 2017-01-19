@@ -1,5 +1,4 @@
-package gopy
-
+package main
 
 type Cmd struct {
 	Args    []string `json:"args"`
