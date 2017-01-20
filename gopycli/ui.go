@@ -75,7 +75,7 @@ func layout(g *gocui.Gui) error {
 }
 
 func initKeybindings(g *gocui.Gui) error {
-	if err := g.SetKeybinding("stdin", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
+	if err := g.SetKeybinding("stdin", gocui.KeyCtrlW, gocui.ModNone, quit); err != nil {
 		return err
 	}
 	if err := g.SetKeybinding("stdin", gocui.KeyEnter, gocui.ModNone, input); err != nil {

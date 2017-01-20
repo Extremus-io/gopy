@@ -13,7 +13,6 @@ func TestSetupServer(t *testing.T) {
 	}()
 	machine_conf := MachineConfig{
 		Hostname:"kittuov-lappy",
-		Threads:2,
 	}
 	m, err := clientConnect(machine_conf)
 	if err != nil {
@@ -26,7 +25,7 @@ func TestSetupServer(t *testing.T) {
 		t.Error("client connected but not registered on server")
 		t.Fail()
 	}
-	if ((ma.Conf.Hostname != machine_conf.Hostname) || (ma.Conf.Threads != machine_conf.Threads) ) {
+	if ((ma.Conf().Hostname != machine_conf.Hostname)) {
 		t.Error("client connected but not registered correctly")
 		t.Fail()
 	}

@@ -6,30 +6,31 @@ import (
 	"encoding/json"
 	"golang.org/x/net/websocket"
 	"time"
+	"github.com/Extremus-io/gopy/log"
 )
 
 const MAX_RETRIES = 20
 
 // fill these parameters and use this to make a new config
 type MachineConfig struct {
+	Id        int                  `json:"id"`
 	Hostname  string               `json:"hostname"`
-	Threads   int                  `json:"threads"`
 	Extra     json.RawMessage      `json:"extra"`
+	Group     string               `json:"group"`
 	ConnectAt time.Time            `json:"connected_at"`
 }
 
 // functional reader writer interface for communicating with machine
 type Machine struct {
-	Id            int                      `json:"id"`
-	Conf          MachineConfig            `json:"conf"`
-	ws            *websocket.Conn
-	reader        io.Reader
-	writer        io.Writer
+	Id     int                      `json:"id"`
+	ws     *websocket.Conn
+	reader io.Reader
+	writer io.Writer
 }
 
 
 // Generates new Machine variable and stores it into local map
-func NewMachineFromWs(c MachineConfig, ws *websocket.Conn,reader io.Reader) *Machine {
+func NewMachineFromWs(c MachineConfig, ws *websocket.Conn) *Machine {
 	// lock the data file for safely updating map
 	lock.Lock()
 	defer lock.Unlock()
@@ -45,19 +46,24 @@ func NewMachineFromWs(c MachineConfig, ws *websocket.Conn,reader io.Reader) *Mac
 			break
 		}
 		if retryCount >= MAX_RETRIES {
-			panic("rand int is not generating unique int entry for id")
+			log.Critical("rand int is not generating unique int entry for id")
+			return nil
 		}
 	}
 
 	// making a machine and saving it into data
 	m := &Machine{
 		Id:id,
-		Conf:c,
 		ws:ws,
-		reader:reader,
+		reader:ws,
 		writer:ws,
 	}
 	data[id] = m
+	_, err := machine_ins.Exec(id, c.Hostname, c.Extra, c.Group, c.ConnectAt)
+	if err != nil {
+		log.Critical("Failed to store config to db")
+		panic(err)
+	}
 
 	// returning a machine
 	return m
@@ -71,7 +77,12 @@ func DeleteMachine(id int) {
 
 	delete(data, id)
 }
-
+func (m *Machine) Conf() MachineConfig {
+	row := machine_sel_by_id.QueryRow(m.Id)
+	c := MachineConfig{}
+	row.Scan(c.Id, c.Hostname, c.Extra, c.Group, c.ConnectAt)
+	return c
+}
 func (m *Machine) Read(p []byte) (int, error) {
 	return m.reader.Read(p)
 }

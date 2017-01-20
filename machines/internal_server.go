@@ -8,8 +8,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/Extremus-io/gopy/log"
-	"bytes"
-	"io"
 )
 
 const _MACHINE_INT_HANDSHAKE_TIMEOUT = time.Second * 10
@@ -37,19 +35,21 @@ func handleWebsocket(ws *websocket.Conn) {
 	}
 
 	// register machine and send id to complete handshake
-	buf := bytes.NewBuffer(nil)
-	m := NewMachineFromWs(mc, ws, buf)
+	m := NewMachineFromWs(mc, ws)
 	defer DeleteMachine(m.Id)
 
 	// finish the handshake step
-	json.NewEncoder(ws).Encode(map[string]interface{}{
+	encoder.Encode(map[string]interface{}{
 		"handshake":true,
 		"id":m.Id,
 	})
 	log.Infof("slave connect success hostname:%s Id:%d", mc.Hostname, m.Id)
 
+	var t = make(map[string]interface{})
 	// copy data from ws to buffer until ws is closed or encountered error
-	io.Copy(buf, ws)
+	for err := decoder.Decode(&t); err != nil; err = decoder.Decode(&t) {
+		log.Criticalf("YTI -- got message from machine %v", t)
+	}
 }
 
 func wsHandshake(ws *websocket.Conn, decoder *json.Decoder) (MachineConfig, error) {

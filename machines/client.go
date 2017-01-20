@@ -34,7 +34,6 @@ func clientConnect(mc MachineConfig) (*Machine, error) {
 		Id:Id,
 		reader:ws,
 		writer:ws,
-		Conf:mc,
 		ws:ws,
 	}
 	return m, nil
