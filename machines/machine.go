@@ -59,7 +59,7 @@ func NewMachineFromWs(c MachineConfig, ws *websocket.Conn) *Machine {
 		writer:ws,
 	}
 	data[id] = m
-	_, err := machine_ins.Exec(id, c.Hostname, c.Extra, c.Group, c.ConnectAt)
+	_, err := machine_ins.Exec(id, c.Hostname, string(c.Extra), c.Group, c.ConnectAt)
 	if err != nil {
 		log.Critical("Failed to store config to db")
 		panic(err)
@@ -74,13 +74,14 @@ func DeleteMachine(id int) {
 	// lock the data map for concurrency protection
 	lock.Lock()
 	defer lock.Unlock()
-
 	delete(data, id)
+	machine_del_by_id.Exec(id)
+	log.Verbosef("machine id %d deleted successfully")
 }
 func (m *Machine) Conf() MachineConfig {
 	row := machine_sel_by_id.QueryRow(m.Id)
 	c := MachineConfig{}
-	row.Scan(c.Id, c.Hostname, c.Extra, c.Group, c.ConnectAt)
+	row.Scan(&c.Id, &c.Hostname, &c.Extra, &c.Group, &c.ConnectAt)
 	return c
 }
 func (m *Machine) Read(p []byte) (int, error) {

@@ -10,17 +10,19 @@ const (
 	sql_create_table = `
 	CREATE TABLE IF NOT EXISTS machine (
 		id 		INT PRIMARY KEY NOT NULL,
-		hostname	VARCHAR(30) UNIQUE NOT NULL ,
+		hostname	VARCHAR(30) UNIQUE NOT NULL,
 		extra 		TEXT,
-		group 		VARCHAR(200),
-		connect_at 	DATETIME NOT NULL DEFAULT DATETIME('now')
+		_group		CHAR(50),
+		connect_at 	DATETIME NOT NULL
 	)`
-	insert_sql = `INSERT INTO machine (id,hostname,extra,group,connect_at) VALUES (?,?,?,?,?)`
-	select_by_id_sql = `SELECT id,hostname,extra,group,connect_at FROM machine where id=?`
+	insert_sql = `INSERT INTO machine (id,hostname,extra,_group,connect_at) VALUES (?,?,?,?,?)`
+	select_by_id_sql = `SELECT id,hostname,extra,_group,connect_at FROM machine where id=?`
+	delete_by_id_sql = `DELETE FROM machine where id=?`
 )
 
 var machine_ins *sql.Stmt
 var machine_sel_by_id *sql.Stmt
+var machine_del_by_id *sql.Stmt
 
 func init() {
 	_, err := db.DB.Exec(sql_create_table)
@@ -31,6 +33,9 @@ func init() {
 		panic(err)
 	}
 	if machine_sel_by_id, err = db.DB.Prepare(select_by_id_sql); err != nil {
+		panic(err)
+	}
+	if machine_del_by_id, err = db.DB.Prepare(delete_by_id_sql); err != nil {
 		panic(err)
 	}
 	log.Verbose("Machine DB init complete")

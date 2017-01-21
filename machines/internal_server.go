@@ -47,7 +47,7 @@ func handleWebsocket(ws *websocket.Conn) {
 
 	var t = make(map[string]interface{})
 	// copy data from ws to buffer until ws is closed or encountered error
-	for err := decoder.Decode(&t); err != nil; err = decoder.Decode(&t) {
+	for err := decoder.Decode(&t); err== nil; err = decoder.Decode(&t) {
 		log.Criticalf("YTI -- got message from machine %v", t)
 	}
 }
