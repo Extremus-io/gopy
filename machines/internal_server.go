@@ -33,9 +33,15 @@ func handleWebsocket(ws *websocket.Conn) {
 
 		return
 	}
-
 	// register machine and send id to complete handshake
-	m := NewMachineFromWs(mc, ws)
+	m, err := NewMachineFromWs(mc, ws)
+	if err != nil {
+		log.Errorf("slave connect failed error:`%v`", err)
+		encoder.Encode(map[string]interface{}{"handshake":false, "error":err.Error()})
+
+		return
+	}
+
 	defer DeleteMachine(m.Id)
 
 	// finish the handshake step
@@ -43,13 +49,15 @@ func handleWebsocket(ws *websocket.Conn) {
 		"handshake":true,
 		"id":m.Id,
 	})
-	log.Infof("slave connect success hostname:%s Id:%d", mc.Hostname, m.Id)
+	log.Infof("slave connect success. hostname:%s Id:%d", mc.Hostname, m.Id)
 
 	var t = make(map[string]interface{})
 	// copy data from ws to buffer until ws is closed or encountered error
-	for err := decoder.Decode(&t); err== nil; err = decoder.Decode(&t) {
+	for err := decoder.Decode(&t); err == nil; err = decoder.Decode(&t) {
 		log.Criticalf("YTI -- got message from machine %v", t)
 	}
+
+	log.Infof("slave disconnected. hostname:%s Id:%d", mc.Hostname, m.Id)
 }
 
 func wsHandshake(ws *websocket.Conn, decoder *json.Decoder) (MachineConfig, error) {

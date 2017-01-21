@@ -25,9 +25,9 @@ func TestSetupServer(t *testing.T) {
 		t.Error("client connected but not registered on server")
 		t.Fail()
 	}
-	if ((ma.Conf().Hostname != machine_conf.Hostname)) {
-		t.Error("client connected but not registered correctly")
-		t.Fail()
+	if c, err := ma.Conf(); (c.Hostname != machine_conf.Hostname && err != nil) {
+	t.Error("client connected but not registered correctly")
+	t.Fail()
 	}
 	m.ws.Close()
 	time.Sleep(time.Second)
