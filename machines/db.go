@@ -17,11 +17,13 @@ const (
 	)`
 	insert_sql = `INSERT INTO machine (id,hostname,extra,_group,connect_at) VALUES (?,?,?,?,?)`
 	select_by_id_sql = `SELECT id,hostname,extra,_group,connect_at FROM machine where id=?`
+	select_all_sql = `SELECT id,hostname,extra,_group,connect_at FROM machine`
 	delete_by_id_sql = `DELETE FROM machine where id=?`
 )
 
 var machine_ins *sql.Stmt
 var machine_sel_by_id *sql.Stmt
+var machine_sel_all *sql.Stmt
 var machine_del_by_id *sql.Stmt
 
 func init() {
@@ -33,6 +35,9 @@ func init() {
 		panic(err)
 	}
 	if machine_sel_by_id, err = db.DB.Prepare(select_by_id_sql); err != nil {
+		panic(err)
+	}
+	if machine_sel_all, err = db.DB.Prepare(select_all_sql); err != nil {
 		panic(err)
 	}
 	if machine_del_by_id, err = db.DB.Prepare(delete_by_id_sql); err != nil {
