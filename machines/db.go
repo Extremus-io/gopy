@@ -12,7 +12,7 @@ const (
 	CREATE TABLE IF NOT EXISTS machine (
 		id 		INT PRIMARY KEY NOT NULL,
 		hostname	VARCHAR(30) UNIQUE NOT NULL,
-		extra 		BLOB DEFAULT NULL,
+		extra 		BLOB,
 		_group		CHAR(200),
 		connect_at 	DATETIME NOT NULL
 	)`

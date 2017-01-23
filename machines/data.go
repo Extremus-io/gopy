@@ -30,7 +30,6 @@ func GetMachineInfo(id int) (MachineInfo, bool) {
 		log.Debugf("Requested machine id `%d` DB query error occured:%s", id, err.Error())
 		return mc, false
 	}
-	log.Debugf("found Machine %v", mc)
 	return mc, true
 }
 
@@ -49,7 +48,6 @@ func GetAllMachinesInfo() []MachineInfo {
 		if err != nil {
 			panic(err)
 		}
-		log.Verbosef("%s", mc.Extra)
 		mcs = append(mcs, mc)
 	}
 	log.Verbosef("Found %d machines", len(mcs))

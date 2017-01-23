@@ -16,7 +16,7 @@ const MAX_RETRIES = 20
 type MachineInfo struct {
 	Id        int                  `json:"id"`
 	Hostname  string               `json:"hostname"`
-	Extra     json.RawMessage      `json:"extra"`
+	Extra     *json.RawMessage      `json:"extra"`
 	Group     string               `json:"group"`
 	ConnectAt time.Time            `json:"connected_at"`
 }
@@ -51,7 +51,7 @@ func NewMachineFromWs(c MachineInfo, ws *websocket.Conn) (*Machine, error) {
 			return nil, errors.New("ID generation failed. Exceed max retries")
 		}
 	}
-	_, err := machine_ins.Exec(id, c.Hostname, []byte(c.Extra), c.Group, c.ConnectAt)
+	_, err := machine_ins.Exec(id, c.Hostname, c.Extra, c.Group, c.ConnectAt)
 	if err != nil {
 		log.Critical("Failed to store config to db")
 		return nil, err
