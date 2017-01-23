@@ -19,10 +19,10 @@ func getMachine(id int) (*Machine, bool) {
 	return machine, found
 }
 
-func GetMachineInfo(id int) (MachineConfig, bool) {
-	mc := MachineConfig{}
+func GetMachineInfo(id int) (MachineInfo, bool) {
+	mc := MachineInfo{}
 	row := machine_sel_by_id.QueryRow(id)
-	err := row.Scan(&mc.Id, &mc.Hostname, &mc.Group, &mc.Extra, &mc.ConnectAt)
+	err := row.Scan(&mc.Id, &mc.Hostname, &mc.Extra, &mc.Group, &mc.ConnectAt)
 	if err == sql.ErrNoRows {
 		return mc, false
 	}
@@ -30,11 +30,12 @@ func GetMachineInfo(id int) (MachineConfig, bool) {
 		log.Debugf("Requested machine id `%d` DB query error occured:%s", id, err.Error())
 		return mc, false
 	}
+	log.Debugf("found Machine %v", mc)
 	return mc, true
 }
 
-func GetAllMachinesInfo() []MachineConfig {
-	mcs := []MachineConfig{}
+func GetAllMachinesInfo() []MachineInfo {
+	var mcs []MachineInfo = []MachineInfo{}
 	row, err := machine_sel_all.Query()
 	defer row.Close()
 
@@ -43,13 +44,14 @@ func GetAllMachinesInfo() []MachineConfig {
 	}
 
 	for row.Next() {
-		mc := MachineConfig{}
-		err := row.Scan(&mc.Id, &mc.Hostname, &mc.Group, &mc.Extra, &mc.ConnectAt)
+		mc := MachineInfo{}
+		err := row.Scan(&mc.Id, &mc.Hostname, &mc.Extra, &mc.Group, &mc.ConnectAt)
 		if err != nil {
 			panic(err)
 		}
+		log.Verbosef("%s", mc.Extra)
 		mcs = append(mcs, mc)
 	}
-
+	log.Verbosef("Found %d machines", len(mcs))
 	return mcs
 }

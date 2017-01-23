@@ -10,7 +10,7 @@ var DB *sql.DB
 
 func init() {
 	var err error
-	DB, err = sql.Open("sqlite3", "file:gopy.db?cache=shared&mode=memory&_loc=auto")
+	DB, err = sql.Open("sqlite3", "file:gopy.db?cache=shared&_loc=auto")
 	if err != nil {
 		panic(err)
 	}

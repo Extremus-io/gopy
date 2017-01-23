@@ -7,12 +7,13 @@ import (
 )
 
 const (
+	sql_drop_table = "DROP TABLE IF EXISTS machine"
 	sql_create_table = `
 	CREATE TABLE IF NOT EXISTS machine (
 		id 		INT PRIMARY KEY NOT NULL,
 		hostname	VARCHAR(30) UNIQUE NOT NULL,
-		extra 		TEXT,
-		_group		CHAR(50),
+		extra 		BLOB DEFAULT NULL,
+		_group		CHAR(200),
 		connect_at 	DATETIME NOT NULL
 	)`
 	insert_sql = `INSERT INTO machine (id,hostname,extra,_group,connect_at) VALUES (?,?,?,?,?)`
@@ -27,7 +28,11 @@ var machine_sel_all *sql.Stmt
 var machine_del_by_id *sql.Stmt
 
 func init() {
-	_, err := db.DB.Exec(sql_create_table)
+	_, err := db.DB.Exec(sql_drop_table)
+	if err != nil {
+		panic(err)
+	}
+	_, err = db.DB.Exec(sql_create_table)
 	if err != nil {
 		panic(err)
 	}

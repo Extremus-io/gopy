@@ -9,7 +9,7 @@ import (
 	"github.com/Extremus-io/gopy/log"
 )
 
-var machine_url = regexp.MustCompile("^/api/machines/(d+)$")
+var machine_url = regexp.MustCompile("^/api/machines/([0-9]+)$")
 
 func machineApi(w http.ResponseWriter, r *http.Request) {
 
@@ -35,11 +35,15 @@ func machineApi(w http.ResponseWriter, r *http.Request) {
 			}
 			w.WriteHeader(http.StatusOK)
 			json.NewEncoder(w).Encode(mach)
+			return
 		} else {
 			// it means the request if for all the machines
 			mach := machines.GetAllMachinesInfo()
 			w.WriteHeader(http.StatusOK)
-			json.NewEncoder(w).Encode(mach)
+			err := json.NewEncoder(w).Encode(mach)
+			if err != nil {
+				log.Criticalf("Unable to encode machine info reason %v", err)
+			}
 		}
 	case http.MethodPost:
 		w.WriteHeader(http.StatusNotImplemented)

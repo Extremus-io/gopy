@@ -6,15 +6,20 @@ import (
 	"time"
 	"errors"
 	"fmt"
+	"github.com/Extremus-io/gopy/log"
+	"path/filepath"
 )
 
-const SERVER_URL = "ws://localhost:9000/_ah/machine/connect"
+const SERVER_URL = "/_ah/machine/connect"
 const CONNECT_TIMEOUT = time.Second * 2
 
-func clientConnect(mc MachineConfig) (*Machine, error) {
+func ClientConnect(host string, mc MachineInfo) (*Machine, error) {
 
+	f := filepath.Join(host, SERVER_URL)
+
+	log.Verbosef("connecting to path %s", f)
 	// Connect to server
-	ws, err := websocket.Dial(SERVER_URL, "", "http://localhost:9000")
+	ws, err := websocket.Dial("ws://" + f, "", "http://" + host)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +44,7 @@ func clientConnect(mc MachineConfig) (*Machine, error) {
 	return m, nil
 }
 
-func cliHandshake(mc MachineConfig, enc *json.Encoder, dec *json.Decoder) (int, error) {
+func cliHandshake(mc MachineInfo, enc *json.Encoder, dec *json.Decoder) (int, error) {
 	// Initiate handshake
 	enc.Encode(mc)
 	var err error

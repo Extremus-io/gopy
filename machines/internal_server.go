@@ -49,7 +49,7 @@ func handleWebsocket(ws *websocket.Conn) {
 		"handshake":true,
 		"id":m.Id,
 	})
-	log.Infof("slave connect success. hostname:%s Id:%d", mc.Hostname, m.Id)
+	log.Infof("slave connected. hostname:%s Id:%d", mc.Hostname, m.Id)
 
 	var t = make(map[string]interface{})
 	// copy data from ws to buffer until ws is closed or encountered error
@@ -60,10 +60,10 @@ func handleWebsocket(ws *websocket.Conn) {
 	log.Infof("slave disconnected. hostname:%s Id:%d", mc.Hostname, m.Id)
 }
 
-func wsHandshake(ws *websocket.Conn, decoder *json.Decoder) (MachineConfig, error) {
+func wsHandshake(ws *websocket.Conn, decoder *json.Decoder) (MachineInfo, error) {
 	c := make(chan interface{})
 	var err error
-	mc := MachineConfig{}
+	mc := MachineInfo{}
 	go func() {
 		defer close(c)
 		err = decoder.Decode(&mc)

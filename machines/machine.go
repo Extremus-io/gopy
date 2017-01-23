@@ -13,7 +13,7 @@ import (
 const MAX_RETRIES = 20
 
 // fill these parameters and use this to make a new config
-type MachineConfig struct {
+type MachineInfo struct {
 	Id        int                  `json:"id"`
 	Hostname  string               `json:"hostname"`
 	Extra     json.RawMessage      `json:"extra"`
@@ -31,7 +31,7 @@ type Machine struct {
 
 
 // Generates new Machine variable and stores it into local map
-func NewMachineFromWs(c MachineConfig, ws *websocket.Conn) (*Machine, error) {
+func NewMachineFromWs(c MachineInfo, ws *websocket.Conn) (*Machine, error) {
 	// lock the data file for safely updating map
 	lock.Lock()
 	defer lock.Unlock()
@@ -51,7 +51,7 @@ func NewMachineFromWs(c MachineConfig, ws *websocket.Conn) (*Machine, error) {
 			return nil, errors.New("ID generation failed. Exceed max retries")
 		}
 	}
-	_, err := machine_ins.Exec(id, c.Hostname, string(c.Extra), c.Group, c.ConnectAt)
+	_, err := machine_ins.Exec(id, c.Hostname, []byte(c.Extra), c.Group, c.ConnectAt)
 	if err != nil {
 		log.Critical("Failed to store config to db")
 		return nil, err
@@ -76,14 +76,15 @@ func DeleteMachine(id int) {
 	defer lock.Unlock()
 	delete(data, id)
 	machine_del_by_id.Exec(id)
-	log.Verbosef("machine id %d deleted successfully",id)
+	log.Verbosef("machine id %d deleted successfully", id)
 }
-func (m *Machine) Conf() (MachineConfig, error) {
+func (m *Machine) Info() (MachineInfo, error) {
 	row := machine_sel_by_id.QueryRow(m.Id)
-	c := MachineConfig{}
+	c := MachineInfo{}
 	err := row.Scan(&c.Id, &c.Hostname, &c.Extra, &c.Group, &c.ConnectAt)
 	return c, err
 }
+
 func (m *Machine) Read(p []byte) (int, error) {
 	return m.reader.Read(p)
 }
