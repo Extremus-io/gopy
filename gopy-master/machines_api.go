@@ -9,13 +9,13 @@ import (
 	"github.com/Extremus-io/gopy/log"
 )
 
-var machine_url = regexp.MustCompile("^/api/machines/([0-9]+)$")
+var machine_url_re = regexp.MustCompile("^/api/machines/([0-9]+)$")
 
 func machineApi(w http.ResponseWriter, r *http.Request) {
 
 	// Extracting id (if any) from the request url
 	// following pattern will match only if the url is requesting for specific machine
-	match := machine_url.FindAllStringSubmatch(r.URL.Path, -1)
+	match := machine_url_re.FindAllStringSubmatch(r.URL.Path, -1)
 	var id = -1
 	log.Verbosef("machine_url matched following %v", match)
 	if len(match) == 1 {

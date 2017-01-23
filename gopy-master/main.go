@@ -13,7 +13,7 @@ func init() {
 	flag.Parse()
 }
 func main() {
-	log.SetMin(log.VERB)
+	log.SetMin(log.DEBU)
 	machines.SetupServer()
 	log.Noticef("Starting Master server at %s", *host)
 	err := http.ListenAndServe(*host, nil)
