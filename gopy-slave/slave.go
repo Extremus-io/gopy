@@ -22,7 +22,7 @@ func main() {
 		Group:*group,
 	}
 	log.Infof("Connecting to server %s", *server_host)
-	m, err := machines.ClientConnect(*server_host, mi)
+	m, err := machines.SlaveConnect(*server_host, mi)
 	if err != nil {
 		panic(err)
 	}

@@ -13,7 +13,7 @@ import (
 const SERVER_URL = "/_ah/machine/connect"
 const CONNECT_TIMEOUT = time.Second * 2
 
-func ClientConnect(host string, mc MachineInfo) (*Machine, error) {
+func SlaveConnect(host string, mc MachineInfo) (*Machine, error) {
 
 	f := filepath.Join(host, SERVER_URL)
 

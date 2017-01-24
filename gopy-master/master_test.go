@@ -38,7 +38,7 @@ func TestApi(t *testing.T) {
 		Hostname:h,
 		Group:"hello/",
 	}
-	m, err := machines.ClientConnect(*host, mi)
+	m, err := machines.SlaveConnect(*host, mi)
 	if err != nil {
 		t.Errorf("unable to connect error %s", err.Error())
 	}
