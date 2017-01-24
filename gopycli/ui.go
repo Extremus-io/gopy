@@ -4,26 +4,30 @@ import (
 	"fmt"
 	"log"
 	"github.com/jroimartin/gocui"
+	"strings"
 )
 
+var gui *gocui.Gui
+
 func RunUi() {
-	g, err := gocui.NewGui(gocui.OutputNormal)
+	var err error
+	gui, err = gocui.NewGui(gocui.OutputNormal)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	defer g.Close()
+	defer gui.Close()
 
-	g.Cursor = true
-	g.Highlight = false
-	g.BgColor = gocui.ColorDefault
+	gui.Cursor = true
+	gui.Highlight = false
+	gui.BgColor = gocui.ColorDefault
 
-	g.SetManagerFunc(layout)
+	gui.SetManagerFunc(layout)
 
-	if err := initKeybindings(g); err != nil {
+	if err := initKeybindings(gui); err != nil {
 		log.Fatalln(err)
 	}
 
-	if err := g.MainLoop(); err != nil && err != gocui.ErrQuit {
+	if err := gui.MainLoop(); err != nil && err != gocui.ErrQuit {
 		log.Fatalln(err)
 	}
 }
@@ -36,7 +40,7 @@ func layout(g *gocui.Gui) error {
 			return err
 		}
 		fmt.Fprintln(v, "↑ ↓: Seek input")
-		fmt.Fprintln(v, "^C: Exit")
+		fmt.Fprintln(v, "^W: Exit")
 		v.Title = "KEY BINDINGS"
 	}
 
@@ -67,7 +71,7 @@ func layout(g *gocui.Gui) error {
 		if _, err := g.SetCurrentView("stdin"); err != nil {
 			return err
 		}
-		fmt.Fprint(v,"$")
+		fmt.Fprint(v, "$")
 		v.Frame = false
 	}
 
@@ -98,7 +102,15 @@ func input(g *gocui.Gui, v *gocui.View) error {
 	}
 	g.Execute(func(g *gocui.Gui) error {
 		vi.Autoscroll = true
-		fmt.Fprint(vi, str)
+		str = strings.TrimSpace(str)
+		sp := strings.SplitN(str, " ", 2)
+		if len(sp) == 1 {
+			sp = append(sp, "")
+		}
+		err := exec(strings.TrimSpace(sp[0]), strings.TrimSpace(sp[1]))
+		if err != nil {
+			return err
+		}
 		return nil
 	})
 	return nil
