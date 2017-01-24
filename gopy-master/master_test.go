@@ -58,7 +58,7 @@ func TestApi(t *testing.T) {
 		t.Fail()
 	}
 	if len(mcs) != 1 {
-		t.Error("client connecte but not showing up. nothing was initiated")
+		t.Error("client connected but not showing up. nothing was initiated")
 		t.Fail()
 	}
 	inf, _ := m.Info()
@@ -87,4 +87,15 @@ func TestApi(t *testing.T) {
 		t.Error("wrong data received with url /api/machine/{id}")
 		t.Fail()
 	}
+	u = fmt.Sprintf("http://" + *host + "/api/machines/%d", 11111111)
+	resp, err = http.Get(u)
+	if err != nil {
+		t.Error("unable to send request to server")
+		t.Fail()
+	}
+	if resp.StatusCode != 404 {
+		t.Errorf("http returned status %d expected 404", resp.StatusCode)
+		t.Fail()
+	}
+
 }
