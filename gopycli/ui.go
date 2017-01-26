@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"github.com/jroimartin/gocui"
-	"strings"
+	"github.com/Extremus-io/gopy/gopycli/parser"
 )
 
 var gui *gocui.Gui
@@ -102,12 +102,11 @@ func input(g *gocui.Gui, v *gocui.View) error {
 	}
 	g.Execute(func(g *gocui.Gui) error {
 		vi.Autoscroll = true
-		str = strings.TrimSpace(str)
-		sp := strings.SplitN(str, " ", 2)
-		if len(sp) == 1 {
-			sp = append(sp, "")
+		args, err := parser.Parse(str)
+		if err != nil {
+			return err
 		}
-		err := exec(strings.TrimSpace(sp[0]), strings.TrimSpace(sp[1]))
+		err = exec(args...)
 		if err != nil {
 			return err
 		}

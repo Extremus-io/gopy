@@ -8,13 +8,17 @@ import (
 	"github.com/jroimartin/gocui"
 )
 
-func exec(cmd string, extra string) error {
+func exec(cmd ...string) error {
 	mainView, err := gui.View("main")
 	if err != nil {
 		panic(err)
 	}
-	switch cmd {
+	switch cmd[0] {
 	case "\\m":
+		extra := ""
+		if len(cmd) > 1 {
+			extra = cmd[1]
+		}
 		resp, err := http.Get("http://" + *host + "/api/machines/" + extra)
 		if err != nil {
 			fmt.Fprint(mainView, color.RedString("error occured while making request\n"))
