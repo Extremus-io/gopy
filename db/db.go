@@ -8,9 +8,11 @@ import (
 
 var DB *sql.DB
 
+const DBName = "gopy.db"
+
 func init() {
 	var err error
-	DB, err = sql.Open("sqlite3", "file:gopy.db?cache=shared&_loc=auto")
+	DB, err = sql.Open("sqlite3", "file:"+DBName+"?cache=shared&_loc=auto")
 	if err != nil {
 		panic(err)
 	}
