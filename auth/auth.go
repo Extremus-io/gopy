@@ -79,7 +79,7 @@ func Authenticate(r *http.Request) (User, bool) {
 		return u, false
 	}
 	cookie_val := make(map[string]string)
-	sCookie.Decode(cookieKey, cookie, &cookie_val)
+	sCookie.Decode(cookieKey, cookie.Value, &cookie_val)
 	email, found := cookie_val[colEmail]
 	if !found {
 		return User{}, false
