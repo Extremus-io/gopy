@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"net/http"
 	"github.com/gorilla/securecookie"
+	"io"
 )
 
 const (
@@ -15,7 +16,6 @@ const (
 )
 
 var (
-	pcrypt = sha256.New()
 	sCookie = securecookie.New([]byte(secretHashKey), []byte(secretBlockKey))
 )
 
@@ -46,8 +46,12 @@ func (u *User) SetPassword(password string) {
 
 // Generates hash from the password
 func generateHash(pass string) []byte {
+	pcrypt := sha256.New()
 	salt := pass + secret
-	return pcrypt.Sum([]byte(salt))
+	io.WriteString(pcrypt, salt)
+	output := pcrypt.Sum(nil)
+	pcrypt.Reset()
+	return output
 }
 
 // Logs in a specific email id to a session

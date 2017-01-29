@@ -13,7 +13,7 @@ var ErrCommandNotFound = errors.New("Error requested command not found")
 
 type Msg struct {
 	Type string `json:"type"`
-	Msg  json.RawMessage `json:"data"`
+	Data *json.RawMessage `json:"data"`
 }
 
 func (m *Msg) Execute() error {
@@ -21,7 +21,7 @@ func (m *Msg) Execute() error {
 	if !found {
 		return ErrCommandNotFound
 	}
-	return f([]byte(m.Msg))
+	return f(m.Data)
 }
 
 type Cli struct {
@@ -60,14 +60,14 @@ func (c *Cli) Start() error {
 		}
 		err = msg.Execute()
 		if err != nil {
-			enc.Encode(map[string]string{
-				"result":"failed",
+			enc.Encode(map[string]interface{}{
+				"result":false,
 				"reason":err.Error(),
 			})
 			continue
 		}
-		enc.Encode(map[string]string{
-			"result":"success",
+		enc.Encode(map[string]interface{}{
+			"result":true,
 		})
 
 	}

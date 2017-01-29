@@ -4,6 +4,7 @@ import (
 	"testing"
 	"os"
 	"github.com/Extremus-io/gopy/db"
+	"github.com/Extremus-io/gopy/log"
 )
 
 const testEmail = "kittuov@gmail.com"
@@ -12,6 +13,7 @@ const testPass = "kittu1234"
 func TestUser_Authenticate(t *testing.T) {
 	const password = "mypassword"
 	pass_enc := generateHash(password)
+	log.Verbosef("generated hash ''%s''",pass_enc)
 	u := User{Email:"kittuov@gmail.com", passwordHash:pass_enc}
 	if !u.Authenticate(password) {
 		t.Error("hash mechanism produced different results")

@@ -24,6 +24,7 @@ func exec(cmd ...string) error {
 	case "create_user":
 		if len(cmd) != 4 {
 			fmt.Fprint(mainView, color.YellowString(create_user_usage))
+			return nil
 		}
 		is_superuser, _ := strconv.ParseBool(cmd[3])
 		user := struct {
@@ -37,16 +38,23 @@ func exec(cmd ...string) error {
 		}
 		json.NewEncoder(ws).Encode(map[string]interface{}{
 			"type":"create_user",
-			"msg":user,
+			"data":user,
 		})
 		result := struct {
-			Result string `json:"result"`
+			Result bool `json:"result"`
+			Reason string `json:"reason"`
 		}{}
 		err = json.NewDecoder(ws).Decode(&result)
 		if err != nil {
-			fmt.Fprint(mainView, color.RedString("Error:%s\n", err.Error()))
+			fmt.Fprint(mainView, color.RedString("Error Decoding response:%s\n", err.Error()))
+			return nil
 		}
-		fmt.Fprint(mainView, color.GreenString("Result:%s\n", result.Result))
+		if result.Result {
+			fmt.Fprint(mainView, color.GreenString("Result:%v\n", result.Result))
+		} else {
+			fmt.Fprint(mainView, color.RedString("Result:%v\n", result.Result))
+			fmt.Fprint(mainView, color.RedString("Error:%s\n", result.Reason))
+		}
 		break
 
 	case "\\m":
